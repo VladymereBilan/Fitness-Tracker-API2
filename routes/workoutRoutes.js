@@ -1,7 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const { validateWorkout } = require('../middleware/validationMiddleware');
-const { getWorkouts, addWorkout, updateWorkout, deleteWorkout, patchWorkout } = require('../controllers/workoutController');
+const {
+	getWorkouts,
+	getWorkoutById,
+	addWorkout,
+	updateWorkout,
+	deleteWorkout,
+	patchWorkout,
+	getWorkoutStats,
+} = require('../controllers/workoutController');
 
 // ========================
 // Workout Routes
@@ -38,6 +46,30 @@ const { getWorkouts, addWorkout, updateWorkout, deleteWorkout, patchWorkout } = 
  *                     format: date-time
  */
 router.get('/', getWorkouts);
+
+/**
+ * @swagger
+ * /api/v1/workout/{id}:
+ *   get:
+ *     summary: Get a workout by ID
+ *     tags: [Workouts]
+ *     description: Fetch a single workout using its ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Workout ID.
+ *     responses:
+ *       200:
+ *         description: Workout found.
+ *       400:
+ *         description: Invalid workout ID.
+ *       404:
+ *         description: Workout not found.
+ */
+router.get('/:id', getWorkoutById);
 
 /**
  * @swagger
@@ -164,5 +196,27 @@ router.patch('/:id', patchWorkout);
  *         description: Workout not found.
  */
 router.delete('/:id', deleteWorkout);
+
+/**
+ * @swagger
+ * /api/v1/workout/stats:
+ *   get:
+ *     summary: Get workout statistics
+ *     tags: [Workouts]
+ *     description: Returns simple statistics about workouts (count and total duration).
+ *     responses:
+ *       200:
+ *         description: Workout statistics.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalWorkouts:
+ *                   type: integer
+ *                 totalDurationMinutes:
+ *                   type: integer
+ */
+router.get('/stats', getWorkoutStats);
 
 module.exports = router;

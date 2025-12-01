@@ -6,7 +6,20 @@ const getWorkouts = async (req, res) => {
     const workouts = await Workout.find().sort({ createdAt: -1 });
     res.status(200).json(workouts);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Failed to fetch workouts' });
+  }
+};
+
+// Get a single workout by ID
+const getWorkoutById = async (req, res) => {
+  try {
+    const workout = await Workout.findById(req.params.id);
+    if (!workout) {
+      return res.status(404).json({ message: 'Workout not found' });
+    }
+    res.status(200).json(workout);
+  } catch (error) {
+    res.status(400).json({ message: 'Invalid workout ID' });
   }
 };
 
@@ -17,7 +30,7 @@ const addWorkout = async (req, res) => {
     await newWorkout.save();
     res.status(201).json({ message: 'Workout added successfully!', workout: newWorkout });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: 'Failed to create workout' });
   }
 };
 
@@ -28,7 +41,7 @@ const updateWorkout = async (req, res) => {
     if (!updated) return res.status(404).json({ message: 'Workout not found' });
     res.status(200).json({ message: 'Workout updated successfully!', workout: updated });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: 'Failed to update workout' });
   }
 };
 
@@ -54,7 +67,7 @@ const patchWorkout = async (req, res) => {
     });
   } catch (error) {
     // Handle any errors during the update
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: 'Failed to partially update workout' });
   }
 };
 
@@ -69,4 +82,33 @@ const deleteWorkout = async (req, res) => {
   }
 };
 
-module.exports = { getWorkouts, addWorkout, updateWorkout, patchWorkout, deleteWorkout };
+// Get simple workout statistics (count and total duration)
+const getWorkoutStats = async (req, res) => {
+  try {
+    const [count, totalDuration] = await Promise.all([
+      Workout.countDocuments(),
+      Workout.aggregate([
+        { $group: { _id: null, totalDuration: { $sum: '$duration' } } },
+      ]),
+    ]);
+
+    const duration = totalDuration[0]?.totalDuration || 0;
+
+    res.status(200).json({
+      totalWorkouts: count,
+      totalDurationMinutes: duration,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch workout statistics' });
+  }
+};
+
+module.exports = {
+  getWorkouts,
+  getWorkoutById,
+  addWorkout,
+  updateWorkout,
+  patchWorkout,
+  deleteWorkout,
+  getWorkoutStats,
+};
