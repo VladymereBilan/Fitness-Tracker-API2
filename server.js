@@ -59,7 +59,7 @@ const workoutRoutes = require('./routes/workoutRoutes');
 app.use('/api/v1/workout', workoutRoutes);
 
 // Swagger docs at /docs (serves the static Swagger UI HTML)
-app.get('/api-docs', (req, res) => {
+app.get('/docs', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'swagger.html'));
 });
 
