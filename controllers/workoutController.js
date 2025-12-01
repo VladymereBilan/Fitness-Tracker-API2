@@ -6,7 +6,8 @@ const getWorkouts = async (req, res) => {
     const workouts = await Workout.find().sort({ createdAt: -1 });
     res.status(200).json(workouts);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch workouts' });
+    console.error('getWorkouts error:', error); // Will show in vercel logs
+    res.status(500).json({ message: 'Failed to fetch workouts', error: error.message  });
   }
 };
 
